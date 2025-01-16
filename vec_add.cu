@@ -47,6 +47,11 @@ int main() {
 
     cudaMemcpy(d, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
 
-
+    for (int i = 0; i < N; i++) {
+        if (c[i] == d[i])
+            printf("%d\n", true);
+        else
+            printf("%d\n", false);
+    }
     return 0;
 }
