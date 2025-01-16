@@ -23,8 +23,8 @@ int main() {
     for(int i=0; i<N; i++) 
         printf("%f\n", c[i]);
     
-    d_a = cudaMalloc((void **)&d_a, N * sizeof(float));
-    d_b = cudaMalloc((void **)&d_b, N * sizeof(float));
-    d_c = cudaMalloc((void **)&d_c, N * sizeof(float));
+    cudaMalloc((void **)&d_a, N * sizeof(float));
+    cudaMalloc((void **)&d_b, N * sizeof(float));
+    cudaMalloc((void **)&d_c, N * sizeof(float));
     return 0;
 }
