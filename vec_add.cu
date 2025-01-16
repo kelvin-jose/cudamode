@@ -1,10 +1,13 @@
 #include<stdio.h>
+#include<cuda_runtime.h>
 
 int main() {
     
     // addition of two vectors in pure c
     int N = 100;
     float *a, *b, *c;
+
+    float *d_a, *d_b, *d_c;
 
     // allocate memory
     a = (float *)malloc(N * sizeof(float));
@@ -19,5 +22,9 @@ int main() {
 
     for(int i=0; i<N; i++) 
         printf("%f\n", c[i]);
+    
+    d_a = cudaMalloc((void **)&d_a, N * sizeof(float));
+    d_b = cudaMalloc((void **)&d_b, N * sizeof(float));
+    d_c = cudaMalloc((void **)&d_c, N * sizeof(float));
     return 0;
 }
