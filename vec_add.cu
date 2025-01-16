@@ -12,7 +12,7 @@ int main() {
     
     // addition of two vectors in pure c
     int N = 100;
-    float *a, *b, *c;
+    float *a, *b, *c, *d;
 
     float *d_a, *d_b, *d_c;
 
@@ -20,6 +20,7 @@ int main() {
     a = (float *)malloc(N * sizeof(float));
     b = (float *)malloc(N * sizeof(float));
     c = (float *)malloc(N * sizeof(float));
+    d = (float *)malloc(N * sizeof(float));
 
     for(int i = 0; i<N; i++) {
         a[i] = 1.3 * i;
@@ -37,6 +38,14 @@ int main() {
     cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_c, c, N * sizeof(float), cudaMemcpyHostToDevice);
+
+    int threadsPerBlock = 32;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+
+    add_vectors<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, N);
+    cudaDeviceSynchronize();
+
+    cudaMemcpy(d, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
 
 
     return 0;
