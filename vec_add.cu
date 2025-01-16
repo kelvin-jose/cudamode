@@ -26,5 +26,9 @@ int main() {
     cudaMalloc((void **)&d_a, N * sizeof(float));
     cudaMalloc((void **)&d_b, N * sizeof(float));
     cudaMalloc((void **)&d_c, N * sizeof(float));
+
+    cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_c, c, N * sizeof(float), cudaMemcpyHostToDevice);
     return 0;
 }
