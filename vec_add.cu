@@ -1,6 +1,13 @@
 #include<stdio.h>
 #include<cuda_runtime.h>
 
+__global__ void add_vectors(const float *a, const float *b, float *c, const int N) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < N)
+        c[idx] = a[idx] + b[idx];
+}
+
 int main() {
     
     // addition of two vectors in pure c
@@ -30,5 +37,7 @@ int main() {
     cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_c, c, N * sizeof(float), cudaMemcpyHostToDevice);
+
+
     return 0;
 }
