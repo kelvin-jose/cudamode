@@ -58,5 +58,9 @@ int main() {
     free(b);
     free(c);
     free(d);
+
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_c);
     return 0;
 }
