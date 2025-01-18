@@ -53,5 +53,10 @@ int main() {
         else
             printf("%d\n", false);
     }
+
+    free(a);
+    free(b);
+    free(c);
+    free(d);
     return 0;
 }
