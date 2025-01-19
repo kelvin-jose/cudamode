@@ -45,11 +45,16 @@ int main() {
     cudaMemcpy(h_matC, d_matC, size * sizeof(int), cudaMemcpyDeviceToHost);
 
     for(int i = 0; i < size; i++) {
-        printf("%d + %d = %d\n", h_matA[i], h_matB[i], h_matC[i]);
+        printf("%d + %d = %d | Correct: %s\n", h_matA[i], h_matB[i], h_matC[i], (h_matA[i] + h_matB[i] == h_matC[i]) ? "True" : "False");
     }
    
     free(h_matA);
     free(h_matB);
+    free(h_matC);
+
+    cudaFree(d_matA);
+    cudaFree(d_matB);
+    cudaFree(d_matC);
 
     return 0;
 }
