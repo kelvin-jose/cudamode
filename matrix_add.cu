@@ -37,6 +37,11 @@ int main() {
     cudaMemcpy(d_matA, h_matA, size * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_matB, h_matB, size * sizeof(int), cudaMemcpyHostToDevice);
 
+    dim3 blockSize(16, 16);
+    dim3 gridSize((N + blockSize.x - 1) / blockSize.x, (M + blockSize.y - 1) / blockSize.y);
+
+    matrix_add<<<gridSize, blockSize>>>(d_matA, d_matB, d_matC, M, N);
+
     printf("%d %d", h_matA[0], h_matB[0]);
     free(h_matA);
     free(h_matB);
