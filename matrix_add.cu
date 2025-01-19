@@ -23,6 +23,9 @@ int main() {
     cudaMalloc((void**)&d_matB, size * sizeof(int));
     cudaMalloc((void**)&d_matC, size * sizeof(int));
 
+    cudaMemcpy(d_matA, h_matA, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_matB, h_mat, size * sizeof(int), cudaMemcpyHostToDevice);
+
     printf("%d %d", h_matA[0], h_matB[0]);
     free(h_matA);
     free(h_matB);
