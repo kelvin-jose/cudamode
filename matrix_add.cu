@@ -3,6 +3,17 @@
 #include<stdlib.h>
 #include<cuda_runtime.h>
 
+__global__ void matrix_add(int *matA, int *matB, int *matC, const int rows, const int cols) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (row < rows && col < cols) {
+        int idx = row * cols + col;
+        matC[idx] = matA[idx] + matB[idx];
+    }
+    
+}
+
 int main() {
     srand(time(NULL));
     int M = 128, N = 128;
@@ -24,7 +35,7 @@ int main() {
     cudaMalloc((void**)&d_matC, size * sizeof(int));
 
     cudaMemcpy(d_matA, h_matA, size * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_matB, h_mat, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_matB, h_matB, size * sizeof(int), cudaMemcpyHostToDevice);
 
     printf("%d %d", h_matA[0], h_matB[0]);
     free(h_matA);
