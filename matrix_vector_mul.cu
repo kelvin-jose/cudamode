@@ -19,8 +19,17 @@ int main() {
     for(int i = 0;i < N; i++)
         h_vector[i] = rand() % 10;
 
+    cudaMalloc((void**)&d_matrix, matrix_size);
+    cudaMalloc((void**)&d_vector, vector_size);
+
+    cudaMemcpy(d_matrix, h_matrix, matrix_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_vector, h_vector, vector_size, cudaMemcpyHostToDevice);
+
+
     printf("%d", h_matrix[10]);
     free(h_matrix);
     free(h_vector);
+    cudaFree(d_matrix);
+    cudaFree(d_vector);
     return 0;
 }
