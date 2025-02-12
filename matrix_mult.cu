@@ -23,23 +23,24 @@ void random_init(float *matrix, int M, int N) {
 int main() {
     float *h_matA, *h_matB, *h_matC, *d_matA, *d_matB, *d_matC;
     int M = 2, N = 2, K = 2;
-    int matAsize = sizeof(float) * M * K;
-    int matBsize = sizeof(float) * K * N;
-    int matCsize = sizeof(float) * M * N;
+    int matA_size = sizeof(float) * M * K;
+    int matB_size = sizeof(float) * K * N;
+    int matC_size = sizeof(float) * M * N;
 
-    h_matA = (float*)malloc(matAsize);
-    h_matB = (float*)malloc(matBsize);
-    h_matC = (float*)malloc(matCsize);
+    h_matA = (float*)malloc(matA_size);
+    h_matB = (float*)malloc(matB_size);
+    h_matC = (float*)malloc(matC_size);
 
     random_init(h_matA, M, K);
     random_init(h_matB, K, N);
 
-    cudaMalloc((void**)&d_matA, matAsize);
-    cudaMalloc((void**)&d_matB, matBsize);
-    cudaMalloc((void**)&d_matC, matCsize);
+    cudaMalloc((void**)&d_matA, matA_size);
+    cudaMalloc((void**)&d_matB, matB_size);
+    cudaMalloc((void**)&d_matC, matC_size);
 
-    cudaMemcpy(d_matA, h_matA, matAsize, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_matB, h_matB, matBsize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_matA, h_matA, matA_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_matB, h_matB, matB_size, cudaMemcpyHostToDevice);
+
     
     for(int i = 0; i < M * K; i++) 
         printf("\n%f", h_matA[i]);
