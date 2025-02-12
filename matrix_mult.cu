@@ -4,8 +4,8 @@
 #include<cuda_runtime.h>
 
 __global__ void matrix_mult(float *A, float*B, float *C, const int M, const int K, const int N) {
-    int row = blockIdx.y * blockDim.y + threadIdx.y
-    int col = blockIdx.x * blockDim.x + threadIdx.x
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (row < M && col < N) {
         float sum = 0.0;
@@ -41,10 +41,16 @@ int main() {
     cudaMemcpy(d_matA, h_matA, matA_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_matB, h_matB, matB_size, cudaMemcpyHostToDevice);
 
+    dim3 block_size(32, 32);
+    dim3 grid_size((M + block_size.x - 1) / block_size.x, (N + block_size.y - 1) / block_size.y);
+
+    matrix_mult<<<grid_size, block_size>>>(d_matA, d_matB, d_matC, M, K, N);
+
+    cudaMemcpy(h_matC, d_matC, matC_size, cudaMemcpyDeviceToHost);
     
     for(int i = 0; i < M * K; i++) 
-        printf("\n%f", h_matA[i]);
-    
+        printf("\n%f", h_matC[i]);
+
     free(h_matA);
     free(h_matB);
     free(h_matC);
