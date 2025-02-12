@@ -17,12 +17,12 @@ __global__ void matrix_mult(float *A, float*B, float *C, const int M, const int 
 
 void random_init(float *matrix, int M, int N) {
     for(int i = 0; i < M * N; i++)
-        matrix[i] = rand() % 10;
+        matrix[i] = (float)rand() / RAND_MAX;
 }
 
 int main() {
     float *h_matA, *h_matB, *h_matC, *d_matA, *d_matB, *d_matC;
-    int M = 2, N = 2, K = 2;
+    int M = 256, N = 512, K = 128;
     int matA_size = sizeof(float) * M * K;
     int matB_size = sizeof(float) * K * N;
     int matC_size = sizeof(float) * M * N;
@@ -42,13 +42,13 @@ int main() {
     cudaMemcpy(d_matB, h_matB, matB_size, cudaMemcpyHostToDevice);
 
     dim3 block_size(32, 32);
-    dim3 grid_size((M + block_size.x - 1) / block_size.x, (N + block_size.y - 1) / block_size.y);
+    dim3 grid_size((N + block_size.x - 1) / block_size.x, (M + block_size.y - 1) / block_size.y);
 
     matrix_mult<<<grid_size, block_size>>>(d_matA, d_matB, d_matC, M, K, N);
 
     cudaMemcpy(h_matC, d_matC, matC_size, cudaMemcpyDeviceToHost);
     
-    for(int i = 0; i < M * K; i++) 
+    for(int i = 0; i < M * N; i++) 
         printf("\n%f", h_matC[i]);
 
     free(h_matA);
