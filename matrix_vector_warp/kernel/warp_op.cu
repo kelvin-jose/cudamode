@@ -1,5 +1,7 @@
 #include<cuda_runtime.h>
 #include "utils.cuh"
+#include<stdio.h>
+
 
 __global__ void matrix_vector_mult(float *matrix, float *vector, float *result, int M, int N) {
     int block = blockIdx.x;
@@ -10,12 +12,12 @@ __global__ void matrix_vector_mult(float *matrix, float *vector, float *result, 
 
     float sum = 0.0;
 
-    for(int i = thread; i < N; i += blockDim.x) {
+    for(int i = thread; i < N; i += blockDim.x)
         sum += matrix[block * N + i] * vector[i];
-    }
 
     sum = warp_reduce(sum);
-    if (block == 0)
+
+    if (thread == 0)
         result[block] = sum;
 }
 
