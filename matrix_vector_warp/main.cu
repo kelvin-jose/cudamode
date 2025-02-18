@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<cuda_runtime.h>
+#include<warp_op.cuh>
 
 void random_init(float *array, int M, int N) {
     for(int i = 0; i < M * N; i++)
@@ -49,6 +50,12 @@ int main() {
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&sec, start, stop);
     printf(">> Host to GPU transfer time: %f\n", sec);
+
+    sec = run_matrix_vector_mult(d_matrix, d_vector, d_result, M, N);
+    printf(">> Kernel execution time: %f\n", sec);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     free(h_matrix);
     free(h_vector);
