@@ -54,6 +54,22 @@ int main() {
     sec = run_matrix_vector_mult(d_matrix, d_vector, d_result, M, N);
     printf(">> Kernel execution time: %f\n", sec);
 
+    cudaEventRecord(start);
+    cudaMemcpy(h_result, d_result, vector_size, cudaMemcpyDeviceToHost);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&sec, start, stop);
+    printf(">> GPU to host transfer time: %f\n", sec);
+
+    for(int i = 0; i < M*N; i++)
+        printf("%f\n", h_matrix[i]);
+    printf("----------------\n");
+    for(int i = 0; i < N; i++)
+        printf("%f\n", h_vector[i]);
+    printf("----------------\n");
+    for(int i = 0; i < N; i++)
+        printf("%f\n", h_result[i]);
+
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
