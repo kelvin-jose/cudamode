@@ -1,4 +1,5 @@
 #include<cuda_runtime.h>
+#include "utils.cuh"
 
 #define WARP_SIZE 32
 
