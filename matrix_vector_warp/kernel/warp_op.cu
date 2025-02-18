@@ -1,8 +1,6 @@
 #include<cuda_runtime.h>
 #include "utils.cuh"
 
-#define WARP_SIZE 32
-
 __global__ void matrix_vector_mult(float *matrix, float *vector, float *result, int M, int N) {
     int block = blockIdx.x;
     if (block >= M)
