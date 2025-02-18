@@ -40,7 +40,15 @@ int main() {
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&sec, start, stop);
-    printf(">> GPU memory allocation time: %f", sec);
+    printf(">> GPU memory allocation time: %f\n", sec);
+
+    cudaEventRecord(start);
+    cudaMemcpy(d_matrix, h_matrix, matrix_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_vector, h_vector, vector_size, cudaMemcpyHostToDevice);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&sec, start, stop);
+    printf(">> Host to GPU transfer time: %f\n", sec);
 
     free(h_matrix);
     free(h_vector);
