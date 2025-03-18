@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<cuda_runtime.h>
+#include "kernels.cuh"
 
 void random_init(float *array, int M, int N) {
     for(int i = 0; i < M * N; i++)
@@ -11,7 +12,7 @@ void random_init(float *array, int M, int N) {
 int main() {
     srand(time(NULL));
 
-    int M = 2, N = 2, K = 2;
+    int M = 4096, N = 4096, K = 4096;
 
     float *h_matA, *h_matB, *h_matC, *h_matD;
     
@@ -35,16 +36,17 @@ int main() {
     cudaEventCreate(&stop);
 
     float sec = 0.0;
-    float *d_matA, *d_matB, *d_matC;
+    float *d_matA, *d_matB, *d_matC, *d_matD;
 
     cudaEventRecord(start);
     cudaMalloc((void**)&d_matA, matA_size);
     cudaMalloc((void**)&d_matB, matB_size);
     cudaMalloc((void**)&d_matC, matC_size);
+    cudaMalloc((void**)&d_matD, matC_size);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&sec, start, stop);
-    printf(">> GPU memory allocation time: %f\n", sec);
+    printf(">> GPU memory allocation time: %.3f\n", sec);
 
     cudaEventRecord(start);
     cudaMemcpy(d_matA, h_matA, matA_size, cudaMemcpyHostToDevice);
@@ -53,20 +55,26 @@ int main() {
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&sec, start, stop);
-    printf(">> Host to GPU transfer time: %f\n", sec);
+    printf(">> Host to GPU transfer time: %.3f\n", sec);
 
-    // execute kernel here
-    printf(">> Kernel execution time: %f\n", sec);
+    sec = run_sgemm_naive(d_matA, d_matB, d_matC, d_matD, M, N, K, 0.7, 0.3);
+    printf(">> Naive kernel execution time: %.3f\n", sec);
 
-    cudaEventRecord(start);
-    cudaMemcpy(h_matC, d_matC, matC_size, cudaMemcpyDeviceToHost);
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&sec, start, stop);
-    printf(">> GPU to host transfer time: %f\n", sec);
+    // cudaEventRecord(start);
+    // cudaMemcpy(h_matD, d_matD, matC_size, cudaMemcpyDeviceToHost);
+    // cudaEventRecord(stop);
+    // cudaEventSynchronize(stop);
+    // cudaEventElapsedTime(&sec, start, stop);
+    // printf(">> GPU to host transfer time: %.3f\n", sec);
 
-    for(int i = 0; i < M * K; i++)
-        printf("%f\n", h_matD[i]);
+    // for(int i = 0; i < M * N; i++)
+    //     printf("%f\n", h_matA[i]);
+    // printf("----------------\n");
+    // for(int i = 0; i < N * K; i++)
+    //     printf("%f\n", h_matB[i]);
+    // printf("----------------\n");
+    // for(int i = 0; i < M * K; i++)
+    //     printf("%f\n", h_matD[i]);
 
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
@@ -79,6 +87,7 @@ int main() {
     cudaFree(d_matA);
     cudaFree(d_matB);
     cudaFree(d_matC);
+    cudaFree(d_matD);
 
 return 0;
 }
