@@ -59,7 +59,12 @@ int main() {
 
     sec = run_sgemm_naive(d_matA, d_matB, d_matC, d_matD, M, N, K, 0.7, 0.3);
     printf(">> Naive kernel execution time: %.3f\n", sec);
-
+    cudaMemcpy(h_matD, d_matD, matC_size, cudaMemcpyDeviceToHost);
+    
+    sec = run_sgemm_coalesced(d_matA, d_matB, d_matC, d_matD, M, N, K, 0.7, 0.3);
+    printf(">> Coalesced kernel execution time: %.3f\n", sec);
+    cudaMemcpy(h_matD, d_matD, matC_size, cudaMemcpyDeviceToHost);
+    
     // cudaEventRecord(start);
     // cudaMemcpy(h_matD, d_matD, matC_size, cudaMemcpyDeviceToHost);
     // cudaEventRecord(stop);
