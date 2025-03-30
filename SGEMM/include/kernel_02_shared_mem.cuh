@@ -1,6 +1,6 @@
 #ifndef KERNEL_02_SHAREDMEM
 #define KERNEL_02_SHAREDMEM
-#define WRAPSIZE 32
+#define WRAPSIZE 16
 #include<cuda_runtime.h>
 
 // MxN @ NxK + NxK
@@ -43,7 +43,7 @@ __global__ void shared_memory(float *matA,
 
     }
         
-    matC[trow * K + tcol] = alpha * sum + beta * matC[trow * K + tcol];
+    matD[trow * K + tcol] = alpha * sum + beta * matC[trow * K + tcol];
 
 }
 
