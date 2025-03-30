@@ -30,6 +30,15 @@ __global__ void shared_memory(float *matA,
     for(int i = 0; i < N; i += WRAPSIZE) {
         sharedA[trow * WRAPSIZE + tcol] = matA[trow * N + tcol];
         sharedB[trow * WRAPSIZE + tcol] = matB[trow * K + tcol];
+
+        __syncthreads();
+
+        matA += WRAPSIZE;
+        matB += WRAPSIZE * K;
+
+        for(int j = 0; j < WRAPSIZE; j++) 
+            sum += sharedA[trow * WRAPSIZE + j] * sharedB[j * WRAPSIZE + tcol];
+        
         
 
     }
