@@ -14,7 +14,7 @@ __global__ void sgemm_coalesced(float *matA,
                             float alpha,
                             float beta) {
                         
-    int row = blockIdx.y * WRAPSIZE + (threadIdx.y / WRAPSIZE);
+    int row = blockIdx.y * WRAPSIZE + (threadIdx.x / WRAPSIZE);
     int col = blockIdx.x * WRAPSIZE + (threadIdx.x % WRAPSIZE);
     
     if (row < M && col < K) {
