@@ -17,8 +17,15 @@ __global__ void shared_memory(float *matA,
     __shared__ float sharedA[WRAPSIZE * WRAPSIZE];
     __shared__ float sharedB[WRAPSIZE * WRAPSIZE];
 
-    
+    int col = blockIdx.x;
+    int row = blockIdx.y;
+    int trow = threadIdx.x / WRAPSIZE;
+    int tcol = threadIdx.x % WRAPSIZE;
 
+    matA += col * WRAPSIZE * N;
+    matB += row * WRAPSIZE;
+    matC += col * WRAPSIZE * K + row * WRAPSIZE;
+                         
     }
 
 #endif
