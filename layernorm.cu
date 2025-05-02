@@ -1,9 +1,55 @@
 #include<time.h>
+#include<math.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<cuda_runtime.h>
 
 #define EPSILON 1e-5
+
+__global__ void layernorm(float *A, float *B, float *gamma, float *beta, const int batch_size, const int dims) {
+    int row = blockIdx.x;
+    int tid = threadIdx.x;
+
+    __shared__ float shared[];
+    float *mean_var = shared;
+    float *row_data = &shared[2];
+
+    if (tid == 0) {
+        mean_var[0] = 0.0f;
+        mean_var[1] = 0.0f;
+    }
+    __syncthreads();
+
+    if (tid < dims) 
+    row_data[tid] = A[row * dims + tid];
+    
+    float sum = 0.0f;
+    for(int i = 0; i < dims; i += blockDim.x)
+        sum += row_data[i];
+
+    atomicAdd(&mean_var[0], sum);
+    __syncthreads();
+
+    float mean = mean_var[0] / dims;
+
+    float var_sum = 0.0f;
+    for(int i = 0; i < dims; i += blockDim.x)
+        var_sum += pow(row_data[i] - mean, 2);
+
+    atomicAdd(&mean_var[1], var_sum);
+    __syncthreads();
+
+    float variance = mean_var[1] / dims;
+    float std = sqrt(variance + EPSILON);
+
+    if (tid < dims) {
+        float norm = (row_data[tid] - mean) / std;
+        if (gamma && beta)
+            norm = norm * gamma[tid] + beta[tid];
+        B[row * dims + tid] = norm;
+
+    }
+}
 
 void random_init(float *array, size_t size) {
     for(int i = 0; i < size; i++)
