@@ -3,6 +3,8 @@
 #include<stdlib.h>
 #include<cuda_runtime.h>
 
+#define EPSILON 1e-5
+
 void random_init(float *array, size_t size) {
     for(int i = 0; i < size; i++)
         array[i] = (float)rand() / RAND_MAX;
@@ -29,6 +31,13 @@ int main() {
     cudaMalloc(&d_B, input_size);
     cudaMalloc(&d_gamma, norm_params_size);
     cudaMalloc(&d_beta, norm_params_size);
+
+    cudaMemcpy(d_A, h_A, input_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, input_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_gamma, h_gamma, norm_params_size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_beta, h_beta, norm_params_size, cudaMemcpyHostToDevice);
+
+
     
     return 0;
 }
