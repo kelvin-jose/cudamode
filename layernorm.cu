@@ -10,7 +10,7 @@ __global__ void layernorm(float *A, float *B, float *gamma, float *beta, const i
     int row = blockIdx.x;
     int tid = threadIdx.x;
 
-    __shared__ float shared[];
+    extern __shared__ float shared[];
     float *mean_var = shared;
     float *row_data = &shared[2];
 
@@ -58,7 +58,7 @@ void random_init(float *array, size_t size) {
 
 int main() {
 
-    const int batch_size = 2, dims = 4;
+    const int batch_size = 8, dims = 4096;
     float *h_A, *h_B, *h_gamma, *h_beta;
     float *d_A, *d_B, *d_gamma, *d_beta;
     size_t input_size = batch_size * dims * sizeof(float);
@@ -69,21 +69,41 @@ int main() {
     h_gamma = (float*)malloc(norm_params_size);
     h_beta = (float*)malloc(norm_params_size);
 
-    random_init(h_A, input_size);
-    random_init(h_gamma, norm_params_size);
-    random_init(h_beta, norm_params_size);
+    random_init(h_A, batch_size * dims);
+    random_init(h_gamma, dims);
+    random_init(h_beta, dims);
 
-    cudaMalloc(&d_A, input_size);
-    cudaMalloc(&d_B, input_size);
-    cudaMalloc(&d_gamma, norm_params_size);
-    cudaMalloc(&d_beta, norm_params_size);
+    cudaMalloc((void**)&d_A, input_size);
+    cudaMalloc((void**)&d_B, input_size);
+    cudaMalloc((void**)&d_gamma, norm_params_size);
+    cudaMalloc((void**)&d_beta, norm_params_size);
 
     cudaMemcpy(d_A, h_A, input_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, h_B, input_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_gamma, h_gamma, norm_params_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_beta, h_beta, norm_params_size, cudaMemcpyHostToDevice);
 
+    const int block_size = 1024;
+    size_t shared_mem = sizeof(float) * (2 + dims);
 
+    layernorm<<<batch_size,block_size, shared_mem>>>(d_A, d_B, d_gamma, d_beta, batch_size, dims);
+    cudaMemcpy(h_B, d_B, input_size, cudaMemcpyDeviceToHost);
+
+    for(int i = 0; i < batch_size; i++) {
+        for(int j = 0; j < dims; j++)
+            printf("%.4f ", h_B[i * dims + j]);
+        printf("\n");
+    }
+
+    free(h_A);
+    free(h_B);
+    free(h_gamma);
+    free(h_beta);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_gamma);
+    cudaFree(d_beta);
     
     return 0;
 }
