@@ -4,6 +4,14 @@
 #include<stdlib.h>
 #include<cuda_runtime.h>
 
+void pretty_print(float *A, int M, int N) {
+    for(int i = 0; i < M; i++) {
+        printf("\n");
+        for(int j = 0; j < N; j++)
+            printf("%f ", A[i * M + j]);
+    }
+}
+
 __global__ void transpose(float *A, float *B, int M, int N) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -22,7 +30,7 @@ int main() {
     h_A = (float*)malloc(size);
     h_B = (float*)malloc(size);
     
-    for(int i = 0; i < size; i++)
+    for(int i = 0; i < M * N; i++)
         h_A[i] = (float)rand() / RAND_MAX;
 
     cudaMalloc((void**)&d_A, size);
@@ -37,5 +45,8 @@ int main() {
     cudaDeviceSynchronize();
 
     cudaMemcpy(h_B, d_B, size, cudaMemcpyDeviceToHost);
+
+    pretty_print(h_A, M, N);
+    pretty_print(h_B, M, N);
     return 0;
 }
