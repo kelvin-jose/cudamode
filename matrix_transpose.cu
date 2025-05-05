@@ -22,6 +22,10 @@ int main() {
     for(int i = 0; i < size; i++)
         h_A[i] = (float)rand() / RAND_MAX;
 
+    cudaMalloc((void**)&d_A, size);
+    cudaMalloc((void**)&d_B, size);
+
     
+
     return 0;
 }
