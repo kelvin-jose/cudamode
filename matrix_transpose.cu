@@ -4,9 +4,12 @@
 #include<stdlib.h>
 #include<cuda_runtime.h>
 
-void random_init(float *array, size_t size) {
-    for(int i = 0; i < size; i++)
-        array[i] = (float)rand() / RAND_MAX;
+__global__ void transpose(float *A, float *B, int M, int N) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if(x < M && y < N) 
+        B[x * M + y] = A[y * N + x];
 }
 
 int main() {
@@ -25,7 +28,14 @@ int main() {
     cudaMalloc((void**)&d_A, size);
     cudaMalloc((void**)&d_B, size);
 
-    
+    cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
 
+    dim3 block_size(32, 32);
+    dim3 grid_size((N + block_size.x - 1) / block_size.x, (M + block_size.y - 1) / block_size.y);
+
+    transpose<<<grid_size, block_size>>>(d_A, d_B, M, N);
+    cudaDeviceSynchronize();
+
+    cudaMemcpy(h_B, d_B, size, cudaMemcpyDeviceToHost);
     return 0;
 }
