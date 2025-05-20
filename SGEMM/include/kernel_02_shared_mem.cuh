@@ -1,6 +1,6 @@
 #ifndef KERNEL_02_SHAREDMEM
 #define KERNEL_02_SHAREDMEM
-#define WRAPSIZE 16
+#define WRAPSIZE 32
 #include<cuda_runtime.h>
 
 // MxN @ NxK + NxK
@@ -48,33 +48,34 @@ __global__ void shared_memory(float *matA,
 }
 
 float run_sgemm_shared_memory(float *matA, 
-    float *matB, 
-    float *matC, 
-    float *matD,
-    int M, 
-    int N, 
-    int K,
-    float alpha = 1.0,
-    float beta = 0.0) {
-dim3 block_size(32 * 32);
-dim3 grid_size((K + block_size.x - 1) / block_size.x, (M + block_size.y - 1) / block_size.y);
-cudaEvent_t start, stop;
-float sec = 0.0;
+                            float *matB, 
+                            float *matC, 
+                            float *matD,
+                            int M, 
+                            int N, 
+                            int K,
+                            float alpha = 1.0,
+                            float beta = 0.0) {
 
-cudaEventCreate(&start);
-cudaEventCreate(&stop);
+    dim3 block_size(32 * 32);
+    dim3 grid_size((K + block_size.x - 1) / block_size.x, (M + block_size.y - 1) / block_size.y);
+    cudaEvent_t start, stop;
+    float sec = 0.0;
 
-cudaEventRecord(start);
-shared_memory<<<grid_size, block_size>>>(matA, matB, matC, matD, M, N, K, 1, 0);
-cudaEventRecord(stop);
-cudaEventRecord(stop);
-cudaEventSynchronize(stop);
-cudaEventElapsedTime(&sec, start, stop);
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
 
-cudaEventDestroy(start);
-cudaEventDestroy(stop);
+    cudaEventRecord(start);
+    shared_memory<<<grid_size, block_size>>>(matA, matB, matC, matD, M, N, K, 1, 0);
+    cudaEventRecord(stop);
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&sec, start, stop);
 
-return sec;
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+
+    return sec;
 }
 
 #endif
